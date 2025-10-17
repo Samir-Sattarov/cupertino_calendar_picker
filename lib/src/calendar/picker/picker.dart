@@ -3,3 +3,4 @@
 // found in the LICENSE file.
 
 export 'cupertino_calendar_picker.dart';
+export 'cupertino_range_calendar_picker.dart';

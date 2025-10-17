@@ -19,6 +19,8 @@ class CalendarMonthPicker extends StatefulWidget {
     required DateTime minimumDate,
     required DateTime maximumDate,
     required DateTime selectedDate,
+    this.selectedStartDate,
+    this.selectedEndDate,
     required this.onChanged,
     required this.decoration,
     required this.mainColor,
@@ -38,6 +40,12 @@ class CalendarMonthPicker extends StatefulWidget {
   ///
   /// This date is highlighted in the picker.
   final DateTime selectedDate;
+
+  /// The currently selected start date for range selection (optional).
+  final DateTime? selectedStartDate;
+
+  /// The currently selected end date for range selection (optional).
+  final DateTime? selectedEndDate;
 
   /// The current date at the time the picker is displayed.
   final DateTime currentDate;
@@ -128,10 +136,16 @@ class CalendarMonthPickerState extends State<CalendarMonthPicker> {
 
         final DateTime date = DateTime(year, month, day);
         final bool isCurrentDay = DateUtils.isSameDay(widget.currentDate, date);
-        final bool isSelectedDay = DateUtils.isSameDay(
+        final bool isSelectedSingle = DateUtils.isSameDay(
           widget.selectedDate,
           date,
         );
+        final bool isRangeStart = widget.selectedStartDate != null &&
+            DateUtils.isSameDay(widget.selectedStartDate, date);
+        final bool isRangeEnd = widget.selectedEndDate != null &&
+            DateUtils.isSameDay(widget.selectedEndDate, date);
+        final bool isSelectedDay =
+            isSelectedSingle || isRangeStart || isRangeEnd;
         final bool isDisabledDay = date.isAfter(widget.maximumDate) ||
             date.isBefore(widget.minimumDate) ||
             widget.selectableDayPredicate?.call(date) == false;

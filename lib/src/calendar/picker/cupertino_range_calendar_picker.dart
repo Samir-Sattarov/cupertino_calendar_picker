@@ -7,52 +7,52 @@ typedef RangeChangedCallback = void Function(DateTime start, DateTime end);
 class CupertinoRangeCalendarPicker extends StatefulWidget {
   const CupertinoRangeCalendarPicker({
     required this.initialMonth,
-    required this.currentDateTime,
     required this.minimumDateTime,
     required this.maximumDateTime,
     required this.selectedStartDate,
     required this.selectedEndDate,
-    required this.selectableDayPredicate,
-    required this.firstDayOfWeekIndex,
     required this.onRangeChanged,
-    required this.onDisplayedMonthChanged,
-    required this.onYearPickerChanged,
-    required this.onTimeChanged,
-    required this.weekdayDecoration,
-    required this.monthPickerDecoration,
-    required this.headerDecoration,
-    required this.mainColor,
-    required this.mode,
-    required this.type,
-    required this.timeLabel,
-    required this.footerDecoration,
-    required this.minuteInterval,
-    required this.use24hFormat,
-    required this.actions,
+    this.currentDateTime,
+    this.firstDayOfWeekIndex,
+    this.onDisplayedMonthChanged,
+    this.onYearPickerChanged,
+    this.onTimeChanged,
+    this.weekdayDecoration,
+    this.monthPickerDecoration,
+    this.headerDecoration,
+    this.mainColor,
+    this.mode,
+    this.type,
+    this.timeLabel,
+    this.footerDecoration,
+    this.minuteInterval,
+    this.use24hFormat,
+    this.actions,
     super.key,
+    this.selectableDayPredicate,
   });
 
   final DateTime initialMonth;
-  final DateTime currentDateTime;
   final DateTime minimumDateTime;
   final DateTime maximumDateTime;
   final DateTime selectedStartDate;
   final DateTime selectedEndDate;
-  final SelectableDayPredicate? selectableDayPredicate;
   final RangeChangedCallback onRangeChanged;
-  final ValueChanged<DateTime> onDisplayedMonthChanged;
-  final ValueChanged<DateTime> onYearPickerChanged;
-  final ValueChanged<DateTime> onTimeChanged;
-  final CalendarWeekdayDecoration weekdayDecoration;
-  final CalendarMonthPickerDecoration monthPickerDecoration;
-  final CalendarHeaderDecoration headerDecoration;
-  final CalendarFooterDecoration footerDecoration;
-  final Color mainColor;
-  final CupertinoCalendarMode mode;
-  final CupertinoCalendarType type;
+  final DateTime? currentDateTime;
+  final ValueChanged<DateTime>? onDisplayedMonthChanged;
+  final ValueChanged<DateTime>? onYearPickerChanged;
+  final ValueChanged<DateTime>? onTimeChanged;
+  final CalendarWeekdayDecoration? weekdayDecoration;
+  final CalendarMonthPickerDecoration? monthPickerDecoration;
+  final CalendarHeaderDecoration? headerDecoration;
+  final CalendarFooterDecoration? footerDecoration;
+  final SelectableDayPredicate? selectableDayPredicate;
+  final Color? mainColor;
+  final CupertinoCalendarMode? mode;
+  final CupertinoCalendarType? type;
   final String? timeLabel;
-  final int minuteInterval;
-  final bool use24hFormat;
+  final int? minuteInterval;
+  final bool? use24hFormat;
   final int? firstDayOfWeekIndex;
   final List<CupertinoCalendarAction>? actions;
 
@@ -141,7 +141,7 @@ class CupertinoRangeCalendarPickerState
           DateUtils.isSameMonth(_currentMonth, monthDate);
       if (!isCurrentMonth) {
         _currentMonth = DateTime(monthDate.year, monthDate.month);
-        widget.onDisplayedMonthChanged(_currentMonth);
+        widget.onDisplayedMonthChanged?.call(_currentMonth);
       }
     });
   }
@@ -198,7 +198,7 @@ class CupertinoRangeCalendarPickerState
       year: date.year,
       month: date.month,
     );
-    widget.onYearPickerChanged(date);
+    widget.onYearPickerChanged?.call(date);
   }
 
   void _onMonthDateChanged(DateTime dateTime) {
@@ -243,7 +243,7 @@ class CupertinoRangeCalendarPickerState
       hour: dateTime.hour,
       minute: dateTime.minute,
     );
-    widget.onTimeChanged(_selectedDateTime);
+    widget.onTimeChanged?.call(_selectedDateTime);
   }
 
   void _onDayPeriodChanged(TimeOfDay newTime) {
@@ -259,7 +259,7 @@ class CupertinoRangeCalendarPickerState
     _selectedDateTime = newDateTime;
 
     if (viewMode != CupertinoCalendarViewMode.timePicker) {
-      widget.onTimeChanged(_selectedDateTime);
+      widget.onTimeChanged?.call(_selectedDateTime);
     }
   }
 
@@ -293,7 +293,8 @@ class CupertinoRangeCalendarPickerState
               onPreviousMonthIconTapped:
                   _isDisplayingFirstMonth ? null : _handlePreviousMonth,
               onYearPickerStateChanged: _toggleYearPicker,
-              decoration: widget.headerDecoration,
+              decoration: widget.headerDecoration ??
+                  CalendarHeaderDecoration.withDynamicColor(context),
             ),
             crossFadeState: viewMode == CupertinoCalendarViewMode.timePicker
                 ? CrossFadeState.showSecond
@@ -310,25 +311,26 @@ class CupertinoRangeCalendarPickerState
                 children: <Widget>[
                   const SizedBox(height: 11.0),
                   CalendarWeekdays(
-                    decoration: widget.weekdayDecoration,
+                    decoration: widget.weekdayDecoration ??
+                        CalendarWeekdayDecoration.withDynamicColor(context),
                     firstDayOfWeekIndex: widget.firstDayOfWeekIndex,
                   ),
                   CalendarMonthPicker(
                     monthPageController: _monthPageController,
                     onMonthPageChanged: _handleMonthPageChanged,
-                    currentDate: widget.currentDateTime,
+                    currentDate: widget.currentDateTime ?? DateTime.now(),
                     displayedMonth: _currentMonth,
                     minimumDate: widget.minimumDateTime,
                     maximumDate: widget.maximumDateTime,
-                    selectableDayPredicate: widget.selectableDayPredicate,
-                    selectedDate:
-                        _rangeEnd ?? _rangeStart ?? widget.currentDateTime,
+                    selectedDate: _rangeEnd ?? _rangeStart ?? DateTime.now(),
                     onChanged: _onMonthDateChanged,
-                    decoration: widget.monthPickerDecoration,
-                    mainColor: widget.mainColor,
+                    decoration: widget.monthPickerDecoration ??
+                        CalendarMonthPickerDecoration.withDynamicColor(context),
+                    mainColor: widget.mainColor ?? CupertinoColors.systemRed,
                     firstDayOfWeekIndex: widget.firstDayOfWeekIndex,
                     selectedStartDate: _rangeStart,
                     selectedEndDate: _rangeEnd,
+                    selectableDayPredicate: widget.selectableDayPredicate,
                   ),
                 ],
               ),
@@ -363,7 +365,7 @@ class CupertinoRangeCalendarPickerState
                       maximumDateTime:
                           widget.maximumDateTime.truncateToMinutes(),
                       initialDateTime: _selectedDateTime.truncateToMinutes(),
-                      minuteInterval: widget.minuteInterval,
+                      minuteInterval: widget.minuteInterval ?? 1,
                       use24hFormat: widget.use24hFormat,
                     ),
                   _ => const SizedBox(),
@@ -371,13 +373,14 @@ class CupertinoRangeCalendarPickerState
               ),
             ),
           ),
-          if (widget.mode == CupertinoCalendarMode.dateTime)
+          if (widget.mode == CupertinoCalendarMode.dateTime) ...<Widget>[
             CupertinoPickerAnimatedCrossFade(
               firstChild: CalendarFooter(
-                decoration: widget.footerDecoration,
+                decoration: widget.footerDecoration ??
+                    CalendarFooterDecoration.withDynamicColor(context),
                 label: widget.timeLabel,
-                type: widget.type,
-                mainColor: widget.mainColor,
+                type: widget.type ?? CupertinoCalendarType.compact,
+                mainColor: widget.mainColor ?? CupertinoColors.systemRed,
                 time: TimeOfDay.fromDateTime(_selectedDateTime),
                 onTimePickerStateChanged: _toggleTimePicker,
                 onTimeChanged: _onDayPeriodChanged,
@@ -387,13 +390,14 @@ class CupertinoRangeCalendarPickerState
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
             ),
-          if (widget.type == CupertinoCalendarType.compact &&
-              withActions) ...<Widget>[
-            const CupertinoPickerDivider(horizontalIndent: 0.0),
-            CalendarActions(
-              actions: actions,
-              onPressed: _onActionPressed,
-            ),
+            if (widget.type == CupertinoCalendarType.compact &&
+                withActions) ...<Widget>[
+              const CupertinoPickerDivider(horizontalIndent: 0.0),
+              CalendarActions(
+                actions: actions,
+                onPressed: _onActionPressed,
+              ),
+            ]
           ],
         ],
       ),
